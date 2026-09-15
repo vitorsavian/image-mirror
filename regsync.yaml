@@ -1,0 +1,52 @@
+# The list of images K3s ships that this repository mirrors into ghcr.io/k3s-io,
+# so that K3s installs do not depend on Docker Hub's anonymous pull quota.
+#
+# Every tag is written out. Nothing is discovered, nothing is picked up on its
+# own: what is in this file is what is in the mirror, and adding a version is a
+# pull request that adds three lines. A tag that does not exist upstream fails
+# the pull request check rather than being skipped quietly.
+#
+# The target names are the ones rancher/artifact-mirror uses, so pointing K3s at
+# this mirror changes the registry host and the namespace of a reference and
+# nothing else.
+#
+# Keep entries for versions older branches of K3s still reference: the list is
+# the union across supported branches, not just what main uses. Removing a line
+# does not delete anything from GHCR; regsync never deletes.
+
+version: 1
+
+creds:
+  - registry: ghcr.io
+    user: '{{ env "GITHUB_REPOSITORY_OWNER" }}'
+    pass: '{{ env "GITHUB_TOKEN" }}'
+    repoAuth: true
+
+defaults:
+  parallel: 3
+  mediaTypes:
+    - application/vnd.docker.distribution.manifest.v2+json
+    - application/vnd.docker.distribution.manifest.list.v2+json
+    - application/vnd.oci.image.manifest.v1+json
+    - application/vnd.oci.image.index.v1+json
+
+sync:
+  - source: docker.io/coredns/coredns:1.14.7
+    target: ghcr.io/k3s-io/mirrored-coredns-coredns:1.14.7
+    type: image
+
+  - source: docker.io/library/busybox:1.37.0
+    target: ghcr.io/k3s-io/mirrored-library-busybox:1.37.0
+    type: image
+
+  - source: docker.io/library/traefik:3.7.13
+    target: ghcr.io/k3s-io/mirrored-library-traefik:3.7.13
+    type: image
+
+  - source: registry.k8s.io/metrics-server/metrics-server:v0.9.0
+    target: ghcr.io/k3s-io/mirrored-metrics-server:v0.9.0
+    type: image
+
+  - source: registry.k8s.io/pause:3.10.2
+    target: ghcr.io/k3s-io/mirrored-pause:3.10.2
+    type: image

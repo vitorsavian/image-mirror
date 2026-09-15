@@ -1,0 +1,33 @@
+name: Pull request
+
+on:
+  pull_request:
+    paths: ['regsync.yaml', '.github/workflows/**']
+
+env:
+  REGSYNC_VERSION: v0.11.6
+  REGSYNC_SHA256: 138aed7deddea6e4d34bdc98d0111bd03927a430caa47b47b22081cd57e4fced
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install regsync
+        run: |
+          curl -fsSL -o regsync \
+            "https://github.com/regclient/regclient/releases/download/${REGSYNC_VERSION}/regsync-linux-amd64"
+          echo "${REGSYNC_SHA256}  regsync" | sha256sum -c -
+          chmod +x regsync
+
+      - name: Config is valid
+        run: ./regsync --config regsync.yaml config
+
+      - name: Sources resolve and list the tags they are meant to
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./regsync --config regsync.yaml check

@@ -1,0 +1,69 @@
+name: Mirror images
+
+on:
+  push:
+    branches: [master]
+    paths: ['regsync.yaml']
+  workflow_dispatch:
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+env:
+  REGSYNC_VERSION: v0.11.6
+  REGSYNC_SHA256: 138aed7deddea6e4d34bdc98d0111bd03927a430caa47b47b22081cd57e4fced
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install regsync
+        run: |
+          curl -fsSL -o regsync \
+            "https://github.com/regclient/regclient/releases/download/${REGSYNC_VERSION}/regsync-linux-amd64"
+          echo "${REGSYNC_SHA256}  regsync" | sha256sum -c -
+          chmod +x regsync
+
+      - name: Mirror
+        env:
+          # The workflow's own token is enough to push to packages owned by this
+          # repository's org, so nothing has to be stored for the target side.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional, and only for reading Docker Hub. Without them the run is
+          # anonymous and can stop partway through with TOOMANYREQUESTS; see the
+          # comment on the docker.io credentials in regsync.yaml.
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: ./regsync --config regsync.yaml once --missing
+
+      - name: Every mirrored package must be pullable anonymously
+        # GHCR creates a package the first time something is pushed to it, and it
+        # creates it private. Somebody has to flip it to public in the packages
+        # settings afterwards; there is no API to do it at push time. Anonymous
+        # callers get 403 from the token endpoint for both a private package and
+        # one that does not exist, and 200 for a public one, so this is the whole
+        # check. It cannot run before the push, because until then those two
+        # cases are indistinguishable.
+        run: |
+          status=0
+          for repo in $(grep -oE 'target: ghcr\.io/\S+' regsync.yaml | cut -d/ -f2-); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+              "https://ghcr.io/token?service=ghcr.io&scope=repository:${repo}:pull")
+            if [ "$code" = "200" ]; then
+              echo "public   ${repo}"
+            else
+              echo "PRIVATE  ${repo} (token endpoint returned ${code})"
+              status=1
+            fi
+          done
+          if [ "$status" -ne 0 ]; then
+            echo
+            echo "Make them public under https://github.com/orgs/k3s-io/packages"
+          fi
+          exit "$status"
