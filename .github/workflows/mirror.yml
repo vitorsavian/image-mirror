@@ -21,7 +21,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Install regsync
         run: |
@@ -30,17 +30,26 @@ jobs:
           echo "${REGSYNC_SHA256}  regsync" | sha256sum -c -
           chmod +x regsync
 
+      - name: Aim the copy at this repository's own namespace
+        # A no-op here, where the owner is already k3s-io. In a fork it rewrites
+        # the targets to the fork's namespace, so the whole thing - pushing,
+        # package creation, the visibility check - can be exercised for real
+        # before any of it runs under k3s-io. regsync.yaml itself stays literal.
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          sed "s|ghcr\.io/k3s-io/|ghcr.io/${owner}/|" regsync.yaml > sync.yaml
+          diff regsync.yaml sync.yaml || echo "(targets rewritten for ${owner})"
+
       - name: Mirror
         env:
           # The workflow's own token is enough to push to packages owned by this
           # repository's org, so nothing has to be stored for the target side.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional, and only for reading Docker Hub. Without them the run is
-          # anonymous and can stop partway through with TOOMANYREQUESTS; see the
-          # comment on the docker.io credentials in regsync.yaml.
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: ./regsync --config regsync.yaml once --missing
+        # Not `--missing`: that skips any tag the target already has, without
+        # looking at it. If upstream rebuilds a tag - official images do get
+        # rebuilt - the mirror would keep serving the old bytes forever. Plain
+        # `once` compares digests, so the mirror converges on upstream.
+        run: ./regsync --config sync.yaml once
 
       - name: Every mirrored package must be pullable anonymously
         # GHCR creates a package the first time something is pushed to it, and it
@@ -52,7 +61,9 @@ jobs:
         # cases are indistinguishable.
         run: |
           status=0
-          for repo in $(grep -oE 'target: ghcr\.io/\S+' regsync.yaml | cut -d/ -f2-); do
+          repos=$(grep -oE 'target: ghcr\.io/\S+' sync.yaml \
+            | cut -d/ -f2- | cut -d: -f1 | sort -u)
+          for repo in $repos; do
             code=$(curl -s -o /dev/null -w '%{http_code}' \
               "https://ghcr.io/token?service=ghcr.io&scope=repository:${repo}:pull")
             if [ "$code" = "200" ]; then
@@ -64,6 +75,7 @@ jobs:
           done
           if [ "$status" -ne 0 ]; then
             echo
-            echo "Make them public under https://github.com/orgs/k3s-io/packages"
+            echo "Make them public under" \
+              "https://github.com/${{ github.repository_owner }}?tab=packages"
           fi
           exit "$status"

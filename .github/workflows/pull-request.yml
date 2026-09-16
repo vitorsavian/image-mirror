@@ -15,7 +15,7 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Install regsync
         run: |
@@ -27,7 +27,15 @@ jobs:
       - name: Config is valid
         run: ./regsync --config regsync.yaml config
 
-      - name: Sources resolve and list the tags they are meant to
+      - name: Aim the comparison at this repository's own namespace
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          sed "s|ghcr\.io/k3s-io/|ghcr.io/${owner}/|" regsync.yaml > sync.yaml
+
+      - name: Every tag exists upstream
+        # `check` fails if a source tag cannot be resolved, which is what catches
+        # a typo. Tags missing from the target are only reported, not an error -
+        # that is the normal state for whatever this pull request is adding.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./regsync --config regsync.yaml check
+        run: ./regsync --config sync.yaml check
