@@ -35,7 +35,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Mirror artifacts
+      - name: Mirror images
         run: |
           export PATH=$PATH:$(pwd)
           if [ "${{ inputs.debug }}" = "true" ]; then
