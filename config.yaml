@@ -3,6 +3,10 @@ Artifacts:
   Tags:
   - 1.14.6
   - 1.14.7
+- SourceArtifact: docker.io/rancher/local-path-provisioner
+  Tags:
+  - v0.0.37
+  TargetArtifactName: mirrored-local-path-provisioner
 - SourceArtifact: library/busybox
   Tags:
   - 1.37.0
@@ -19,10 +23,6 @@ Artifacts:
   - "3.10"
   - 3.10.2
   TargetArtifactName: mirrored-pause
-- SourceArtifact: docker.io/rancher/local-path-provisioner
-  Tags:
-  - v0.0.37
-  TargetArtifactName: mirrored-local-path-provisioner
 Repositories:
 - BaseUrl: ghcr.io/vitorsavian
   DefaultTarget: true

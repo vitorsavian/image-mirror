@@ -13,6 +13,9 @@ sync:
 - source: coredns/coredns:1.14.7
   target: ghcr.io/vitorsavian/mirrored-coredns-coredns:1.14.7
   type: image
+- source: docker.io/rancher/local-path-provisioner:v0.0.37
+  target: ghcr.io/vitorsavian/mirrored-local-path-provisioner:v0.0.37
+  type: image
 - source: library/busybox:1.37.0
   target: ghcr.io/vitorsavian/mirrored-library-busybox:1.37.0
   type: image
