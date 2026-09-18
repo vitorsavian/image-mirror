@@ -1,4 +1,4 @@
-module github.com/rancher/artifact-mirror
+module github.com/k3s-io/image-mirror
 
 go 1.24.4
 

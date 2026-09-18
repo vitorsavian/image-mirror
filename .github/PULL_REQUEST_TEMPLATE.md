@@ -1,8 +1,7 @@
 #### Pull Request Checklist ####
 
-- [ ] If an entire artifact is being added, a repo has been created for the artifact in DockerHub under the `rancher` org
+- [ ] If an entire artifact is being added, confirm the package visibility in `ghcr.io` is set to public after the first push
 - [ ] Additions are licensed with Rancher favored licenses - Apache 2 and MIT - or approved licenses - as according to [CNCF approved licenses](https://github.com/cncf/foundation/blob/main/allowed-third-party-license-policy.md).
-- [ ] Additions, when used in Rancher or Rancher's provided charts, have their corresponding origin added in Rancher's images [origins](https://github.com/rancher/rancher/blob/release/v2.7/pkg/image/origins.go) file (must be added for all Rancher versions `>= v2.7`).
 - [ ] Any changes to scripting or CI config have been tested to the best of your ability
 
 #### Change Description ####

@@ -16,7 +16,7 @@ func TestRegistry(t *testing.T) {
 			{
 				Message: "should return nil for a valid Registry strategy",
 				Registry: &Registry{
-					Artifacts:     []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:     []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					Latest:        true,
 					VersionFilter: "^v1\\.([3-9][0-9])\\.[0-9]+$",
 				},
@@ -34,7 +34,7 @@ func TestRegistry(t *testing.T) {
 			{
 				Message: "should return error the versionFilter provided is invalid",
 				Registry: &Registry{
-					Artifacts:     []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:     []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					Latest:        false,
 					VersionFilter: "[",
 				},

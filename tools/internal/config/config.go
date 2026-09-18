@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/rancher/artifact-mirror/internal/regsync"
+	"github.com/k3s-io/image-mirror/internal/regsync"
 
 	"sigs.k8s.io/yaml"
 )
@@ -22,16 +22,18 @@ type Repository struct {
 	// BaseUrl is used exclusively for referring to the Repository
 	// in general, and for building the target artifact ref for a given
 	// artifact for a repository. For example, a target artifact name of
-	// "mirrored-rancher-cis-operator" and a BaseUrl of "docker.io/rancher"
-	// produce a target artifact ref of "docker.io/rancher/mirrored-rancher-cis-operator".
+	// "mirrored-coredns-coredns" and a BaseUrl of "ghcr.io/k3s-io"
+	// produce a target artifact ref of "ghcr.io/k3s-io/mirrored-coredns-coredns".
 	BaseUrl string
 	// Whether the Repository is used as a target repository for a given
 	// Artifact when the TargetRepositories field of the Artifact is not set.
 	DefaultTarget bool
 	// Password is what goes into the "pass" field of regsync.yaml
-	// for this repository. For more information please see
+	// for this repository. Leave it empty to let regsync pick the
+	// credentials up from ~/.docker/config.json instead. For more
+	// information please see
 	// https://github.com/regclient/regclient/blob/main/docs/regsync.md
-	Password string
+	Password string `json:",omitempty"`
 	// Registry is what goes into the "registry" field of regsync.yaml
 	// for this repository. For more information please see
 	// https://github.com/regclient/regclient/blob/main/docs/regsync.md
@@ -45,9 +47,11 @@ type Repository struct {
 	// https://github.com/regclient/regclient/blob/main/docs/regsync.md
 	ReqConcurrent int `json:",omitempty"`
 	// Username is what goes into the "user" field of regsync.yaml
-	// for this repository. For more information please see
+	// for this repository. Leave it empty to let regsync pick the
+	// credentials up from ~/.docker/config.json instead. For more
+	// information please see
 	// https://github.com/regclient/regclient/blob/main/docs/regsync.md
-	Username string
+	Username string `json:",omitempty"`
 }
 
 func Parse(fileName string) (*Config, error) {
@@ -100,7 +104,7 @@ func (config *Config) ToRegsyncConfig() (regsync.Config, error) {
 	regsyncYaml := regsync.Config{
 		Creds: make([]regsync.ConfigCred, 0, len(config.Repositories)),
 		Defaults: regsync.ConfigDefaults{
-			UserAgent: "rancher-artifact-mirror",
+			UserAgent: "k3s-image-mirror",
 		},
 		Sync: make([]regsync.ConfigSync, 0),
 	}

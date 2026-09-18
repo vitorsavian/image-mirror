@@ -28,11 +28,13 @@ type Config struct {
 // ConfigCred specifies the details for a registry that artifacts may
 // be pulled from or pushed to.
 type ConfigCred struct {
-	Pass          string `json:"pass"`
+	// Pass and User are omitted when empty: regsync falls back to
+	// ~/.docker/config.json, which is how the CI job authenticates.
+	Pass          string `json:"pass,omitempty"`
 	Registry      string `json:"registry"`
 	RepoAuth      bool   `json:"repoAuth,omitempty"`
 	ReqConcurrent int    `json:"reqConcurrent,omitempty"`
-	User          string `json:"user"`
+	User          string `json:"user,omitempty"`
 }
 
 type ConfigDefaults struct {

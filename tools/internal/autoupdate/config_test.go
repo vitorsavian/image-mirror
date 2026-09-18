@@ -3,7 +3,7 @@ package autoupdate
 import (
 	"testing"
 
-	"github.com/rancher/artifact-mirror/internal/config"
+	"github.com/k3s-io/image-mirror/internal/config"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +23,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: []string{"user", "org/team"},
 				},
@@ -50,7 +50,7 @@ func TestConfigEntry(t *testing.T) {
 				ConfigEntry: ConfigEntry{
 					Name: "test-entry",
 					Registry: &Registry{
-						Artifacts:     []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:     []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 						Latest:        false,
 						VersionFilter: "^v1\\.([3-9][0-9])\\.[0-9]+$",
 					},
@@ -65,7 +65,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 				},
 				ExpectedError: "must specify Name",
@@ -85,7 +85,7 @@ func TestConfigEntry(t *testing.T) {
 						Owner:      "test-owner",
 						Repository: "test-repo",
 						Artifacts: []AutoupdateArtifactRef{{
-							SourceArtifact: "rancher/rancher",
+							SourceArtifact: "k3s-io/k3s",
 						}},
 					},
 					HelmLatest: &HelmLatest{
@@ -106,7 +106,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: []string{"user", "org/team"},
 				},
@@ -119,7 +119,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: []string{"org/team/foo"},
 				},
@@ -132,7 +132,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: []string{"org/"},
 				},
@@ -145,7 +145,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: []string{"/team"},
 				},
@@ -158,7 +158,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: []string{},
 				},
@@ -171,7 +171,7 @@ func TestConfigEntry(t *testing.T) {
 					GithubRelease: &GithubRelease{
 						Owner:      "test-owner",
 						Repository: "test-repo",
-						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+						Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					},
 					Reviewers: nil,
 				},

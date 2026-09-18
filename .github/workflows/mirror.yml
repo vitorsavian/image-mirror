@@ -1,0 +1,45 @@
+name: Mirror Artifacts
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: "Enable debug logging"
+        required: false
+        type: boolean
+
+jobs:
+  mirror-artifacts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Install regsync
+        run: |
+          REGSYNC_CHECKSUM=bbfcf9dc120bd67ad6163eb80667005c47570ff5a90157f0d26efb247906548d
+          curl --silent --fail --location --output regsync https://github.com/regclient/regclient/releases/download/v0.8.3/regsync-linux-amd64
+          echo "${REGSYNC_CHECKSUM}  regsync" | sha256sum -c -
+          chmod +x regsync
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Mirror artifacts
+        run: |
+          export PATH=$PATH:$(pwd)
+          if [ "${{ inputs.debug }}" = "true" ]; then
+            time regsync once --logopt json --missing --config regsync.yaml --verbosity debug
+          else
+            time regsync once --logopt json --missing --config regsync.yaml
+          fi

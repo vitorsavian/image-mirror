@@ -2,20 +2,16 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
-	"slices"
 	"strings"
-	"time"
 
-	"github.com/rancher/artifact-mirror/internal/autoupdate"
-	"github.com/rancher/artifact-mirror/internal/config"
-	"github.com/rancher/artifact-mirror/internal/git"
-	"github.com/rancher/artifact-mirror/internal/paths"
-	"github.com/rancher/artifact-mirror/internal/regsync"
+	"github.com/k3s-io/image-mirror/internal/autoupdate"
+	"github.com/k3s-io/image-mirror/internal/config"
+	"github.com/k3s-io/image-mirror/internal/git"
+	"github.com/k3s-io/image-mirror/internal/paths"
+	"github.com/k3s-io/image-mirror/internal/regsync"
 
 	"github.com/google/go-github/v80/github"
 	"github.com/urfave/cli/v3"
@@ -199,7 +195,7 @@ func autoUpdate(ctx context.Context, _ *cli.Command) error {
 }
 
 // validate is used to run validations based in Go code against
-// the state of the artifact-mirror repo.
+// the state of the image-mirror repo.
 func validate(_ context.Context, _ *cli.Command) error {
 	configYaml, err := config.Parse(paths.ConfigYaml)
 	if err != nil {
@@ -211,7 +207,6 @@ func validate(_ context.Context, _ *cli.Command) error {
 	validateSourceArtifactAndTargetArtifactName(&errs, configYaml)
 	validateNoTagsRemoved(&errs, configYaml)
 	validateNewTagsPullable(&errs, configYaml)
-	validateDockerHubRepoExists(&errs, configYaml)
 
 	// Format results into one error, if any
 	if len(errs) > 0 {
@@ -312,7 +307,7 @@ func validateNewTagsPullable(errs *[]error, newConfigYaml *config.Config) {
 	}
 
 	// Instantiate oras store
-	dirPath, err := os.MkdirTemp("", "artifact-mirror-validation-*")
+	dirPath, err := os.MkdirTemp("", "image-mirror-validation-*")
 	if err != nil {
 		*errs = append(*errs, fmt.Errorf("failed to create temp dir: %w", err))
 		return
@@ -364,97 +359,4 @@ func parseRepository(repository string) (*remote.Repository, error) {
 		return nil, fmt.Errorf("failed to instantiate repository: %w", err)
 	}
 	return repo, nil
-}
-
-func validateDockerHubRepoExists(errs *[]error, newConfigYaml *config.Config) {
-	oldConfigYaml, err := loadMergeBaseConfigYaml(mergeBaseBranch)
-	if err != nil {
-		*errs = append(*errs, fmt.Errorf("failed to load %s from merge base %q: %w", paths.ConfigYaml, mergeBaseBranch, err))
-		return
-	}
-
-	// get artifacts that were added in this branch
-	newArtifacts := make([]*config.Artifact, 0, len(newConfigYaml.Artifacts))
-	accumulator := config.NewArtifactAccumulator()
-	accumulator.AddArtifacts(oldConfigYaml.Artifacts...)
-	for _, newArtifact := range newConfigYaml.Artifacts {
-		if accumulator.Contains(newArtifact) {
-			continue
-		}
-		if len(newArtifact.TargetRepositories) > 0 && !slices.Contains(newArtifact.TargetRepositories, "docker.io/rancher") {
-			continue
-		}
-		newArtifacts = append(newArtifacts, newArtifact)
-	}
-	if len(newArtifacts) == 0 {
-		return
-	}
-
-	// fetch existing repositories from dockerhub
-	existingRepositories, err := fetchDockerHubRepositories()
-	if err != nil {
-		*errs = append(*errs, fmt.Errorf("failed to fetch existing repositories from dockerhub: %w", err))
-		return
-	}
-
-	for _, newArtifact := range newArtifacts {
-		targetArtifactName := newArtifact.TargetArtifactName()
-		_, repoExists := existingRepositories[targetArtifactName]
-		if !repoExists {
-			*errs = append(*errs, fmt.Errorf("repository rancher/%s does not exist on dockerhub", targetArtifactName))
-		}
-	}
-}
-
-func fetchDockerHubRepositories() (map[string]struct{}, error) {
-	d := autoupdate.DockerHub{}
-	token, err := d.GetDockerAuthToken()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create token: %w", err)
-	}
-
-	type DockerAPIResponseRepository struct {
-		Name string `json:"name"`
-	}
-	type DockerAPIResponse struct {
-		Next    string                        `json:"next"`
-		Results []DockerAPIResponseRepository `json:"results"`
-	}
-
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
-	repos := map[string]struct{}{}
-	nextURL := "https://hub.docker.com/v2/namespaces/rancher/repositories?page_size=100"
-	for nextURL != "" {
-		req, err := http.NewRequest("GET", nextURL, nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create request: %w", err)
-		}
-		req.Header.Set("Authorization", "Bearer "+token)
-		resp, err := client.Do(req)
-		if err != nil {
-			return nil, fmt.Errorf("request failed: %w", err)
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
-		}
-
-		var apiResponse DockerAPIResponse
-		decoder := json.NewDecoder(resp.Body)
-		if err := decoder.Decode(&apiResponse); err != nil {
-			return nil, fmt.Errorf("failed to decode response: %w", err)
-		}
-
-		for _, repo := range apiResponse.Results {
-			repos[repo.Name] = struct{}{}
-		}
-
-		// The URL for the next iteration is the 'next' field from the current response.
-		// If 'next' is an empty string or null, the loop will terminate.
-		nextURL = apiResponse.Next
-	}
-
-	return repos, nil
 }

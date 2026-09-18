@@ -3,7 +3,7 @@ package sortstrategy_test
 import (
 	"testing"
 
-	"github.com/rancher/artifact-mirror/internal/sortstrategy"
+	"github.com/k3s-io/image-mirror/internal/sortstrategy"
 	"github.com/stretchr/testify/assert"
 )
 

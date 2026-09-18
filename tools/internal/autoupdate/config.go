@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rancher/artifact-mirror/internal/config"
-	"github.com/rancher/artifact-mirror/internal/git"
-	"github.com/rancher/artifact-mirror/internal/paths"
-	"github.com/rancher/artifact-mirror/internal/regsync"
+	"github.com/k3s-io/image-mirror/internal/config"
+	"github.com/k3s-io/image-mirror/internal/git"
+	"github.com/k3s-io/image-mirror/internal/paths"
+	"github.com/k3s-io/image-mirror/internal/regsync"
 
 	"github.com/google/go-github/v80/github"
 	"sigs.k8s.io/yaml"
@@ -201,8 +201,8 @@ func (entry ConfigEntry) Run(ctx context.Context, opts AutoUpdateOptions) error 
 
 	// When filtering pull requests by head branch, the github API
 	// requires that the head branch is in the format <owner>:<branch>.
-	// In the case of branches pushed using GITHUB_TOKEN in rancher/artifact-mirror,
-	// owner is "rancher". When running in a personal repo, setting GITHUB_TOKEN
+	// In the case of branches pushed using GITHUB_TOKEN in k3s-io/image-mirror,
+	// owner is "k3s-io". When running in a personal repo, setting GITHUB_TOKEN
 	// to a PAT makes owner the same as the user's github username.
 	headBranch := opts.GithubOwner + ":" + branchName
 	requestContext, cancel := context.WithTimeout(ctx, 10*time.Second)

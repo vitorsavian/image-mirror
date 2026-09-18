@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rancher/artifact-mirror/internal/config"
-	"github.com/rancher/artifact-mirror/internal/sortstrategy"
+	"github.com/k3s-io/image-mirror/internal/config"
+	"github.com/k3s-io/image-mirror/internal/sortstrategy"
 )
 
 type Registry struct {

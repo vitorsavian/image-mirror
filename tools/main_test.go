@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/rancher/artifact-mirror/internal/config"
+	"github.com/k3s-io/image-mirror/internal/config"
 
 	"github.com/stretchr/testify/assert"
 )

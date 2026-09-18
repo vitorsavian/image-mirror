@@ -9,11 +9,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/rancher/artifact-mirror/internal/config"
+	"github.com/k3s-io/image-mirror/internal/config"
 	"go.yaml.in/yaml/v3"
 )
 
-const helmRepoName = "artifact-mirror-tools-temp"
+const helmRepoName = "image-mirror-tools-temp"
 
 // An Environment is a set of configuration we would like to apply to a
 // chart when templating it out and searching the result for images.

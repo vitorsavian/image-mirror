@@ -93,7 +93,9 @@ func (d DockerHub) fetchPage(page int, token string) ([]string, bool, error) {
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
 	req.URL.RawQuery = params.Encode()
 	resp, err := doRequestWithRetries(req)
 	if err != nil {
@@ -116,9 +118,15 @@ func (d DockerHub) fetchPage(page int, token string) ([]string, bool, error) {
 	return tags, data.Next != "", nil
 }
 
+// GetDockerAuthToken returns a Docker Hub access token, or an empty string if
+// no credentials are set in the environment. The tags API serves public
+// repositories anonymously; authenticating only buys a higher rate limit.
 func (d DockerHub) GetDockerAuthToken() (string, error) {
 	dockerUsername := os.Getenv("DOCKER_USERNAME")
 	dockerPassword := os.Getenv("DOCKER_PASSWORD")
+	if dockerUsername == "" || dockerPassword == "" {
+		return "", nil
+	}
 
 	// https://docs.docker.com/reference/api/hub/latest/#tag/authentication-api/operation/AuthCreateAccessToken
 	reqBody, err := json.Marshal(map[string]string{

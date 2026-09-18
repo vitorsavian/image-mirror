@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/rancher/artifact-mirror/internal/regsync"
+	"github.com/k3s-io/image-mirror/internal/regsync"
 )
 
 // Artifact should not be instantiated directly. Instead, use NewArtifact().

@@ -24,7 +24,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:      "test-owner",
 					Repository: "test-repo",
-					Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					LatestOnly: true,
 				},
 				ExpectedError: "",
@@ -34,7 +34,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:             "test-owner",
 					Repository:        "test-repo",
-					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionConstraint: ">3.5.10",
 				},
 				ExpectedError: "",
@@ -44,7 +44,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:             "test-owner",
 					Repository:        "test-repo",
-					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					LatestOnly:        true,
 					VersionConstraint: ">3.5.10",
 				},
@@ -54,7 +54,7 @@ func TestGithubRelease(t *testing.T) {
 				Message: "should return error for empty Owner",
 				GithubRelease: &GithubRelease{
 					Repository: "test-repo",
-					Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 				},
 				ExpectedError: "must specify Owner",
 			},
@@ -62,7 +62,7 @@ func TestGithubRelease(t *testing.T) {
 				Message: "should return error for empty Repository",
 				GithubRelease: &GithubRelease{
 					Owner:     "test-owner",
-					Artifacts: []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts: []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 				},
 				ExpectedError: "must specify Repository",
 			},
@@ -88,7 +88,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:             "test-owner",
 					Repository:        "test-repo",
-					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionConstraint: "InvalidVersionConstraint",
 				},
 				ExpectedError: "invalid VersionConstraint: improper constraint: InvalidVersionConstraint",
@@ -98,7 +98,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:        "test-owner",
 					Repository:   "test-repo",
-					Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionRegex: "v[asdf[",
 				},
 				ExpectedError: "invalid VersionRegex: error parsing regexp: missing closing ]: `[asdf[`",
@@ -120,7 +120,7 @@ func TestGithubRelease(t *testing.T) {
 			githubRelease := &GithubRelease{
 				Owner:             "test-owner",
 				Repository:        "test-repo",
-				Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+				Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 				VersionConstraint: constraintString,
 			}
 			err := githubRelease.Validate()
@@ -135,7 +135,7 @@ func TestGithubRelease(t *testing.T) {
 			githubRelease := &GithubRelease{
 				Owner:        "test-owner",
 				Repository:   "test-repo",
-				Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+				Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 				VersionRegex: regexString,
 			}
 			err := githubRelease.Validate()
@@ -158,7 +158,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:      "test-owner",
 					Repository: "test-repo",
-					Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:  []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 				},
 				Tag:             "v1.2.3",
 				ExpectedVersion: "v1.2.3",
@@ -168,7 +168,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:        "test-owner",
 					Repository:   "test-repo",
-					Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionRegex: "^v(.*)$",
 				},
 				Tag:             "v1.2.3",
@@ -179,7 +179,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:        "test-owner",
 					Repository:   "test-repo",
-					Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:    []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionRegex: "v(asdf)",
 				},
 				Tag:             "v1.2.3",
@@ -190,7 +190,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:             "test-owner",
 					Repository:        "test-repo",
-					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionConstraint: ">=1.0.0",
 				},
 				Tag:             "v1.2.3",
@@ -201,7 +201,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:             "test-owner",
 					Repository:        "test-repo",
-					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionConstraint: "<1.0.0",
 				},
 				Tag:             "v1.2.3",
@@ -212,7 +212,7 @@ func TestGithubRelease(t *testing.T) {
 				GithubRelease: &GithubRelease{
 					Owner:             "test-owner",
 					Repository:        "test-repo",
-					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "rancher/rancher"}},
+					Artifacts:         []AutoupdateArtifactRef{{SourceArtifact: "k3s-io/k3s"}},
 					VersionConstraint: "<1.0.0",
 					VersionRegex:      "^v(.*)$",
 				},
